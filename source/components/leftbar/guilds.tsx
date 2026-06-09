@@ -15,8 +15,8 @@ export default function LeftbarGuilds() {
 		>
 			{guildList.map(guild => (
 				<Text key={guild.id}>
-					# <Text color={guild.id === focusedGuild?.id ? 'cyan' : 'white'} 
-                            italic={guild.id === focusedGuild?.id}>
+					# <Text backgroundColor={guild.id === focusedGuild?.id ? 'blue' : ''}
+                            color={guild.id === focusedGuild?.id ? 'black' : 'white'}>
                             {guild.name}
                       </Text>
 				</Text>

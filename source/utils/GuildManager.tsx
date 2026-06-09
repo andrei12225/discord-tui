@@ -1,10 +1,10 @@
 import {useContext, useMemo} from 'react';
-import {AppContext} from '../cli.js';
+import {GuildContext} from '../cli.js';
 
 export function useAppGuilds() {
-	const context = useContext(AppContext);
+	const context = useContext(GuildContext);
 	if (!context) {
-		throw new Error('useAppGuilds must be used within an AppContext provider');
+		throw new Error('useAppGuilds must be used within an GuildContext provider');
 	}
 
 	const {guilds, focusedGuildId, setFocusedGuildId} = context;
