@@ -1,29 +1,21 @@
-import {Guild} from 'discord.js';
-import { useMemo, useState } from 'react';
+import {useContext, useMemo} from 'react';
+import {AppContext} from '../cli.js';
 
-export type TuiGuild = Guild & {isFocused: boolean};
+export function useAppGuilds() {
+	const context = useContext(AppContext);
+	if (!context) {
+		throw new Error('useAppGuilds must be used within an AppContext provider');
+	}
 
-export function useAppGuilds(initialGuilds: Guild[]) {
-    const [guildList, setGuildList] = useState<TuiGuild[]>(() => 
-        initialGuilds.map((guild, index) => 
-            Object.assign(guild, { isFocused: index === 0 })
-        )
-    );
+	const {guilds, focusedGuildId, setFocusedGuildId} = context;
 
-    const focusedGuild = useMemo(() => {
-        return guildList.find(g => g.isFocused);
-    }, [guildList]);
+	const focusedGuild = useMemo(() => {
+		return guilds.find(g => g.id === focusedGuildId) || null;
+	}, [guilds, focusedGuildId]);
 
-    const setFocus = (guildId: string) => {
-        setGuildList(prev => 
-            prev.map(guild =>
-                Object.assign(guild, { isFocused: guild.id === guildId })
-        ));
-    };
-
-    return {
-        guildList,
-        focusedGuild,
-        setFocus
-    }
+	return {
+		guildList: guilds,
+		focusedGuild,
+		setFocus: setFocusedGuildId,
+	};
 }

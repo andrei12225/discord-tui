@@ -11,14 +11,14 @@ export default function MainPage() {
 	return (
 		<Box width={columns} height={rows - 1} margin={1} gap={1}>
 			<LeftbarGuilds />
-			<Box borderStyle="single" width={'60%'}>
-				<Text>	
-					{messages.map(m => `${m.author.tag}: ${m.content}`).join("\n")}
+			<Box borderStyle="classic" width={'60%'}>
+				<Text>
+					{messages.map(m => `${m.author.tag}: ${m.content}`).join('\n')}
 				</Text>
 			</Box>
 			<Box width={'20%'}>
-				<Text>	
-					{messages.map(m => `${m.author.tag}: ${m.content}`).join("\n")}
+				<Text>
+					{messages.map(m => `${m.author.tag}: ${m.content}`).join('\n')}
 				</Text>
 			</Box>
 		</Box>
