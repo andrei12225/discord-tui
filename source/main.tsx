@@ -13,12 +13,14 @@ export default function MainPage() {
 
 	return (
 		<Box width={columns} height={rows - 1} margin={1} gap={1}>
-			{!guildsManager.selectedId ? (
-				<LeftbarGuilds />
-			) : (
-				<LeftbarChannelPicker />
-			)}
-			<Box borderStyle={'classic'} width={'50%'} paddingX={2} flexDirection="column" overflowY="hidden">
+			{!guildsManager.selectedId ? <LeftbarGuilds /> : <LeftbarChannelPicker />}
+			<Box
+				borderStyle={'classic'}
+				width={'50%'}
+				paddingX={2}
+				flexDirection="column"
+				overflowY="hidden"
+			>
 				<Box flexGrow={1} overflowY="hidden" flexDirection="column">
 					{messages.map(m => (
 						<Text key={m.id} wrap="wrap">
@@ -26,14 +28,12 @@ export default function MainPage() {
 						</Text>
 					))}
 				</Box>
-				<Box alignSelf='flex-end' borderStyle={"single"} width={"100%"}>
-					<Text>Enter message...</Text>
+				<Box alignSelf="flex-end" borderStyle={'single'} width={'100%'}>
+					<Text>Enter Message...</Text>
 				</Box>
-			</Box>	
+			</Box>
 			<Box borderStyle={'classic'} width={'20%'}>
-				<Text>
-					users
-				</Text>
+				<Text>users</Text>
 			</Box>
 		</Box>
 	);

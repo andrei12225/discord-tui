@@ -8,7 +8,7 @@ import React, {
 	ReactNode,
 } from 'react';
 import {TuiChannel, TuiMessage} from './domain.js';
-import { Message } from 'discord.js';
+import {Message} from 'discord.js';
 
 export interface MessageContextValue {
 	messages: TuiMessage[];
@@ -55,7 +55,11 @@ export class MessagesManager {
 		this.setAllMessages([]);
 	}
 
-	private sliceForHeight(source: TuiMessage[], height: number, width: number): TuiMessage[] {
+	private sliceForHeight(
+		source: TuiMessage[],
+		height: number,
+		width: number,
+	): TuiMessage[] {
 		const availableLines = Math.floor(height * this.messages_height_ratio);
 		const usableWidth = Math.max(width * 0.5, 10);
 
@@ -66,7 +70,10 @@ export class MessagesManager {
 		for (let i = source.length - 1; i >= 0; i--) {
 			const msg = source[i]!;
 			const rendered = `${msg.author.tag}: ${msg.content}`;
-			const linesOccupied = Math.max(1, Math.ceil(rendered.length / usableWidth));
+			const linesOccupied = Math.max(
+				1,
+				Math.ceil(rendered.length / usableWidth),
+			);
 			if (totalLines + linesOccupied > availableLines) break;
 			totalLines += linesOccupied;
 			startIndex = i;
@@ -75,7 +82,11 @@ export class MessagesManager {
 		return source.slice(startIndex);
 	}
 
-	async fetchAndSetAllMessages(channel: TuiChannel | null, height: number, width: number) {
+	async fetchAndSetAllMessages(
+		channel: TuiChannel | null,
+		height: number,
+		width: number,
+	) {
 		if (!channel) return;
 
 		const fetched = await channel.messages.fetch();
@@ -105,7 +116,11 @@ export function useAppMessages(): MessagesManager {
 	const {messages, setMessages, allMessages, setAllMessages} = context;
 
 	return useMemo(() => {
-		return new MessagesManager(messages, setMessages, allMessages, setAllMessages);
+		return new MessagesManager(
+			messages,
+			setMessages,
+			allMessages,
+			setAllMessages,
+		);
 	}, [messages, allMessages]);
 }
-

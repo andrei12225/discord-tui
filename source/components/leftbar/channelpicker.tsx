@@ -1,15 +1,14 @@
 import {Box, Newline, Text} from 'ink';
 import React from 'react';
 import {useAppChannels} from '../../utils/ChannelManager.js';
-import {AppElements, useAppFocus} from '../../utils/FocusManager.js';
+import Option from './option.js';
 
 export default function LeftbarChannelPicker() {
 	const channels = useAppChannels();
-	const focus = useAppFocus();
-	const focusedChannel = channels.getFocusedChannel()!;
 
-	const channelsCurrentlyFocused =
-		focus.focusedElement === AppElements.CHANNELS;
+	const onChannelSelect = (channelId: string) => {
+		channels.selectChannel(channelId);
+	}
 
 	return (
 		<Box
@@ -25,23 +24,9 @@ export default function LeftbarChannelPicker() {
 			</Box>
 			<Newline></Newline>
 			{channels.list.map(channel => (
-				<Text key={channel.id}>
-					#{' '}
-					<Text
-						backgroundColor={
-							focusedChannel.id === channel.id && channelsCurrentlyFocused
-								? 'blue'
-								: ''
-						}
-						color={
-							focusedChannel.id === channel.id && channelsCurrentlyFocused
-								? 'black'
-								: 'white'
-						}
-					>
-						{channel.name}
-					</Text>
-				</Text>
+				<Option onSelect={() => onChannelSelect(channel.id)} 
+						key={channel.id} 
+						content={'# ' + channel.name}/>
 			))}
 		</Box>
 	);

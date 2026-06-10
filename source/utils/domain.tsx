@@ -1,18 +1,10 @@
-import {
-	Guild,
-	Message,
-	NewsChannel,
-	TextChannel,
-} from 'discord.js';
+import {Guild, Message, NewsChannel, TextChannel} from 'discord.js';
 
-export type RawChannel =
-	| NewsChannel
-	| TextChannel;
-
+export type RawChannel = NewsChannel | TextChannel;
 
 export class TuiChannel {
 	constructor(public readonly raw: RawChannel) {}
-	
+
 	get id() {
 		return this.raw.id;
 	}

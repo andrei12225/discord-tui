@@ -1,10 +1,14 @@
 import {Box, Newline, Text} from 'ink';
 import React from 'react';
 import {useAppGuilds} from '../../utils/GuildManager.js';
+import Option from './option.js';
 
 export default function LeftbarGuilds() {
 	const guilds = useAppGuilds();
-	const focusedGuild = guilds.getFocusedGuild()!;
+	
+	const onGuildSelect = (guildId: string) => {
+		guilds.selectGuild(guildId);
+	}
 
 	return (
 		<Box
@@ -20,21 +24,11 @@ export default function LeftbarGuilds() {
 			</Box>
 			<Newline></Newline>
 			{guilds.list.map(guild => (
-				<Text key={guild.id}>
-					#{' '}
-					<Text
-						backgroundColor={
-							focusedGuild.id === guild.id ? process.env['focused-bg'] : ''
-						}
-						color={
-							focusedGuild.id === guild.id
-								? process.env['focused-fg']
-								: process.env['main-fg']
-						}
-					>
-						{guild.name}
-					</Text>
-				</Text>
+				<Option
+					onSelect={() => onGuildSelect(guild.id)}
+					key={guild.id}
+					content={'# ' + guild.name}
+				/>
 			))}
 		</Box>
 	);

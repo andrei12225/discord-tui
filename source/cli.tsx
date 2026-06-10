@@ -5,7 +5,6 @@ import {Client, Events, GatewayIntentBits} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
 import {MessageProvider, useAppMessages} from './utils/MessageManager.js';
-import {AppElements, FocusProvider, useAppFocus} from './utils/FocusManager.js';
 import MainPage from './main.js';
 
 process.loadEnvFile('.env');
@@ -23,7 +22,6 @@ function AppInner() {
 	const guildsManager = useAppGuilds();
 	const channelsManager = useAppChannels();
 	const messagesManager = useAppMessages();
-	const focusManager = useAppFocus();
 	const {rows, columns} = useWindowSize();
 
 	useEffect(() => {
@@ -46,7 +44,11 @@ function AppInner() {
 	}, [guildsManager.selectedId]);
 
 	useEffect(() => {
-		messagesManager.fetchAndSetAllMessages(channelsManager.getFocusedChannel(), rows, columns);
+		messagesManager.fetchAndSetAllMessages(
+			channelsManager.getSelectedChannel(),
+			rows,
+			columns,
+		);
 	}, [channelsManager.selectedId]);
 
 	useEffect(() => {
@@ -54,31 +56,11 @@ function AppInner() {
 	}, [rows, messagesManager.list.length]);
 
 	useInput(async (_, key) => {
-		if (key.downArrow || key.upArrow) {
-			if (focusManager.focusedElement === AppElements.GUILDS)
-				key.downArrow
-					? guildsManager.focusNext()
-					: guildsManager.focusPrevious();
-			if (focusManager.focusedElement === AppElements.CHANNELS)
-				key.downArrow
-					? channelsManager.focusNext()
-					: channelsManager.focusPrevious();
-		}
-		if (key.return) {
-			if (focusManager.focusedElement === AppElements.GUILDS) {
-				guildsManager.selectFocusedGuild();
-				focusManager.setFocusedElement(AppElements.CHANNELS);
-			}
-			if (focusManager.focusedElement === AppElements.CHANNELS) {
-				channelsManager.selectFocusedChannel();
-			}
-		}
 		if (key.escape) {
-			if (focusManager.focusedElement === AppElements.CHANNELS) {
+			if (channelsManager.hasSelectedChannel()) {
 				guildsManager.deselectGuild();
 				channelsManager.setList([]);
 				messagesManager.clearAll();
-				focusManager.setFocusedElement(AppElements.GUILDS);
 			}
 		}
 	});
@@ -94,15 +76,13 @@ function AppInner() {
 
 function App() {
 	return (
-		<FocusProvider>
-			<GuildProvider>
-				<ChannelProvider>
-					<MessageProvider>
-						<AppInner />
-					</MessageProvider>
-				</ChannelProvider>
-			</GuildProvider>
-		</FocusProvider>
+		<GuildProvider>
+			<ChannelProvider>
+				<MessageProvider>
+					<AppInner />
+				</MessageProvider>
+			</ChannelProvider>
+		</GuildProvider>
 	);
 }
 
