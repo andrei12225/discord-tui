@@ -60,5 +60,5 @@ export function useAppFocus(): FocusManager {
 
 	return useMemo(() => {
 		return new FocusManager(focusedElement, setFocusedElement);
-	}, [focusedElement, setFocusedElement]);
+	}, [focusedElement]);
 }

@@ -24,6 +24,10 @@ export class TuiChannel {
 	get istext() {
 		return this.raw.isTextBased() && !this.raw.isVoiceBased();
 	}
+
+	get messages() {
+		return this.raw.messages;
+	}
 }
 
 export class TuiGuild {

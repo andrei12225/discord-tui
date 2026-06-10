@@ -8,6 +8,7 @@ import React, {
 	ReactNode,
 } from 'react';
 import {TuiGuild} from './domain.js';
+import { Client } from 'discord.js';
 
 export interface GuildContextValue {
 	guilds: TuiGuild[];
@@ -89,6 +90,19 @@ export class GuildsManager {
 	deselectGuild() {
 		this.setSelectedId(null);
 	}
+
+	async fetchAndSetAllGuilds(client: Client) {
+		const allOAuthGuilds = await client.guilds.fetch();
+		const fetchedGuilds = await Promise.all(
+			Array.from(allOAuthGuilds.values()).map(g => g.fetch()),
+		);
+
+		const wrappedGuilds = fetchedGuilds.map(g => new TuiGuild(g));
+		this.setList(wrappedGuilds);
+		if (wrappedGuilds.length > 0) {
+			this.setFocusedGuildId(wrappedGuilds[0]!.id);
+		}
+	}
 }
 
 export function useAppGuilds(): GuildsManager {
@@ -115,5 +129,5 @@ export function useAppGuilds(): GuildsManager {
 			setFocusedGuildId,
 			setSelectedGuildId,
 		);
-	}, [guilds, focusedGuildId, setGuilds, setFocusedGuildId, selectedGuildId, setSelectedGuildId]);
+	}, [guilds, focusedGuildId, selectedGuildId]);
 }

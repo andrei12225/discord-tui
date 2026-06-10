@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import React, {useEffect, useState} from 'react';
-import {render, Text, useInput} from 'ink';
-import {Client, Events, GatewayIntentBits, Message} from 'discord.js';
-import {TuiGuild, TuiMessage} from './utils/domain.js';
+import {render, Text, useInput, useWindowSize} from 'ink';
+import {Client, Events, GatewayIntentBits} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
 import {MessageProvider, useAppMessages} from './utils/MessageManager.js';
@@ -25,47 +24,34 @@ function AppInner() {
 	const channelsManager = useAppChannels();
 	const messagesManager = useAppMessages();
 	const focusManager = useAppFocus();
+	const {rows} = useWindowSize();
 
 	useEffect(() => {
-		const handleMessage = (m: Message) => {
-			messagesManager.addMessage(new TuiMessage(m));
-		};
 		const handleReady = async () => {
-			const allOAuthGuilds = await client.guilds.fetch();
-			const fetchedGuilds = await Promise.all(
-				Array.from(allOAuthGuilds.values()).map(g => g.fetch()),
-			);
+			await guildsManager.fetchAndSetAllGuilds(client);
 
-			const wrappedGuilds = fetchedGuilds.map(g => new TuiGuild(g));
-			guildsManager.setList(wrappedGuilds);
-			if (wrappedGuilds.length > 0) {
-				guildsManager.setFocusedGuildId(wrappedGuilds[0]!.id);
-			}
 			setReady(true);
 		};
 
-		client.on(Events.MessageCreate, handleMessage);
+		client.on(Events.MessageCreate, handleNewMessage);
 		client.on(Events.ClientReady, handleReady);
 
 		return () => {
-			client.off(Events.MessageCreate, handleMessage);
+			client.off(Events.MessageCreate, handleNewMessage);
 		};
 	}, [client]);
 
 	useEffect(() => {
-		const updateChannels = async () => {
-			if (!guildsManager.selectedId) return;
-			const selectedGuild = guildsManager.getSelectedGuild();
-			if (selectedGuild) {
-				const fetchedChannels = await selectedGuild.fetchChannels();
-				channelsManager.setList(fetchedChannels);
-				if (fetchedChannels.length > 0) {
-					channelsManager.setFocusedChannelId(fetchedChannels[0]!.id);
-				}
-			}
-		};
-		updateChannels();
+		channelsManager.fetchAndSetAllChannels(guildsManager.getSelectedGuild());
 	}, [guildsManager.selectedId]);
+
+	useEffect(() => {
+		messagesManager.fetchAndSetAllMessages(channelsManager.getFocusedChannel(), rows);
+	}, [channelsManager.selectedId]);
+
+	useEffect(() => {
+		messagesManager.updateMessagesHeight(rows);
+	}, [rows]);
 
 	useInput(async (_, key) => {
 		if (key.downArrow || key.upArrow) {
@@ -84,16 +70,14 @@ function AppInner() {
 				focusManager.setFocusedElement(AppElements.CHANNELS);
 			}
 			if (focusManager.focusedElement === AppElements.CHANNELS) {
-				// guildsManager.selectFocusedGuild();
-				// focusManager.setFocusedElement(AppElements.CHANNELS);
-				const messages = await channelsManager.getFocusedChannel()?.raw.messages.fetch()!;
-				messagesManager.setMessages(messages?.map(m => new TuiMessage(m)));
+				channelsManager.selectFocusedChannel();
 			}
 		}
 		if (key.escape) {
 			if (focusManager.focusedElement === AppElements.CHANNELS) {
 				guildsManager.deselectGuild();
 				channelsManager.setList([]);
+				messagesManager.clearAll();
 				focusManager.setFocusedElement(AppElements.GUILDS);
 			}
 		}

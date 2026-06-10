@@ -25,7 +25,7 @@ export default function MainPage() {
 			</Box>
 			<Box borderStyle={'classic'} width={'20%'}>
 				<Text>
-					{messages.map(m => `${m.author.tag}: ${m.content}`).join('\n')}
+					users
 				</Text>
 			</Box>
 		</Box>
