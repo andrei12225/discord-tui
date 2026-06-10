@@ -67,19 +67,34 @@ function AppInner() {
 		updateChannels();
 	}, [guildsManager.selectedId]);
 
-	useInput((_, key) => {
+	useInput(async (_, key) => {
 		if (key.downArrow || key.upArrow) {
-			key.downArrow
-				? guildsManager.focusNext()
-				: guildsManager.focusPrevious();
-			key.downArrow
-				? channelsManager.focusNext()
-				: channelsManager.focusPrevious();
+			if (focusManager.focusedElement === AppElements.GUILDS)
+				key.downArrow
+					? guildsManager.focusNext()
+					: guildsManager.focusPrevious();
+			if (focusManager.focusedElement === AppElements.CHANNELS)
+				key.downArrow
+					? channelsManager.focusNext()
+					: channelsManager.focusPrevious();
 		}
 		if (key.return) {
 			if (focusManager.focusedElement === AppElements.GUILDS) {
 				guildsManager.selectFocusedGuild();
-				focusManager.focusLeft();
+				focusManager.setFocusedElement(AppElements.CHANNELS);
+			}
+			if (focusManager.focusedElement === AppElements.CHANNELS) {
+				// guildsManager.selectFocusedGuild();
+				// focusManager.setFocusedElement(AppElements.CHANNELS);
+				const messages = await channelsManager.getFocusedChannel()?.raw.messages.fetch()!;
+				messagesManager.setMessages(messages?.map(m => new TuiMessage(m)));
+			}
+		}
+		if (key.escape) {
+			if (focusManager.focusedElement === AppElements.CHANNELS) {
+				guildsManager.deselectGuild();
+				channelsManager.setList([]);
+				focusManager.setFocusedElement(AppElements.GUILDS);
 			}
 		}
 	});

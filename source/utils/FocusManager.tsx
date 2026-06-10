@@ -35,19 +35,19 @@ export function FocusProvider({children}: {children: ReactNode}) {
 export class FocusManager {
 	constructor(
 		public readonly focusedElement: AppElements,
-		private readonly setFocusedElement: (element: AppElements) => void,
+		public readonly setFocusedElement: (element: AppElements) => void,
 	) {}
 
-	focusLeft() {
-		const nextIndex =
-			(this.focusedElement - 1 + AppElements.__LENGTH) % AppElements.__LENGTH;
-		this.setFocusedElement(nextIndex);
-	}
+	// focusLeft() {
+	// 	const nextIndex =
+	// 		(this.focusedElement - 1 + AppElements.__LENGTH) % AppElements.__LENGTH;
+	// 	this.setFocusedElement(nextIndex);
+	// }
 
-	focusRight() {
-		const nextIndex = (this.focusedElement + 1) % AppElements.__LENGTH;
-		this.setFocusedElement(nextIndex);
-	}
+	// focusRight() {
+	// 	const nextIndex = (this.focusedElement + 1) % AppElements.__LENGTH;
+	// 	this.setFocusedElement(nextIndex);
+	// }
 }
 
 export function useAppFocus(): FocusManager {

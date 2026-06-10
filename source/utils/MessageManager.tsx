@@ -27,7 +27,7 @@ export function MessageProvider({children}: {children: ReactNode}) {
 export class MessagesManager {
 	constructor(
 		public readonly list: TuiMessage[],
-		private readonly setMessages: Dispatch<SetStateAction<TuiMessage[]>>,
+		public readonly setMessages: Dispatch<SetStateAction<TuiMessage[]>>,
 	) {}
 
 	addMessage(message: TuiMessage) {

@@ -1,27 +1,18 @@
 import {
 	Guild,
 	Message,
-	CategoryChannel,
-	ForumChannel,
-	MediaChannel,
 	NewsChannel,
-	StageChannel,
 	TextChannel,
-	VoiceChannel,
 } from 'discord.js';
 
 export type RawChannel =
-	| CategoryChannel
 	| NewsChannel
-	| StageChannel
-	| TextChannel
-	| VoiceChannel
-	| ForumChannel
-	| MediaChannel;
+	| TextChannel;
+
 
 export class TuiChannel {
 	constructor(public readonly raw: RawChannel) {}
-
+	
 	get id() {
 		return this.raw.id;
 	}

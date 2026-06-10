@@ -34,7 +34,7 @@ export function GuildProvider({children}: {children: ReactNode}) {
 			selectedGuildId,
 			setSelectedGuildId,
 		}),
-		[guilds, focusedGuildId],
+		[guilds, focusedGuildId, selectedGuildId],
 	);
 
 	return <GuildContext value={value}>{children}</GuildContext>;
@@ -66,10 +66,6 @@ export class GuildsManager {
 		this.setFocusedId(id);
 	}
 
-	setSelectedGuildId(id: string | null) {
-		this.setSelectedId(id);
-	}
-
 	focusNext() {
 		if (this.list.length === 0) return;
 		const currentIndex = this.list.findIndex(g => g.id === this.focusedId);
@@ -88,6 +84,10 @@ export class GuildsManager {
 
 	selectFocusedGuild() {
 		this.setSelectedId(this.focusedId);
+	}
+
+	deselectGuild() {
+		this.setSelectedId(null);
 	}
 }
 

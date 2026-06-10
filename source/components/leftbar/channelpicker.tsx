@@ -20,8 +20,8 @@ export default function LeftbarChannelPicker() {
 			alignItems="center"
 		>
 			<Box width="100%" flexDirection="column" alignItems="center">
-				<Text color="green">Choose a channel by</Text>
-				<Text color="green">pressing ENTER</Text>
+				<Text color="blue">Choose a channel by</Text>
+				<Text color="blue">pressing ENTER</Text>
 			</Box>
 			<Newline></Newline>
 			{channels.list.map(channel => (
