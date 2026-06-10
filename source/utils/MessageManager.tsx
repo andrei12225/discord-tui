@@ -8,6 +8,7 @@ import React, {
 	ReactNode,
 } from 'react';
 import {TuiChannel, TuiMessage} from './domain.js';
+import { Message } from 'discord.js';
 
 export interface MessageContextValue {
 	messages: TuiMessage[];
@@ -54,26 +55,42 @@ export class MessagesManager {
 		this.setAllMessages([]);
 	}
 
-	private sliceForHeight(source: TuiMessage[], height: number): TuiMessage[] {
-		const maxMessages = Math.floor(height * this.messages_height_ratio);
+	private sliceForHeight(source: TuiMessage[], height: number, width: number): TuiMessage[] {
+		let maxMessages = Math.floor(height * this.messages_height_ratio);
 		if (source.length <= maxMessages) return source;
-		return source.slice(source.length - maxMessages);
+		let slicedMessages = source.slice(source.length - maxMessages);
+
+		let totalLines = 0;
+		for (const message of slicedMessages) {
+			const linesOccupied = Math.floor(message.content.length / 0.5 * width);
+			totalLines += linesOccupied;
+		}
+
+		maxMessages = Math.floor(totalLines * this.messages_height_ratio);
+		slicedMessages = source.slice(source.length - maxMessages);
+
+		return slicedMessages;
 	}
 
-	async fetchAndSetAllMessages(channel: TuiChannel | null, height: number) {
+	async fetchAndSetAllMessages(channel: TuiChannel | null, height: number, width: number) {
 		if (!channel) return;
 
 		const fetched = await channel.messages.fetch();
 		const allMsgs = fetched.map(m => new TuiMessage(m)).reverse();
 
 		this.setAllMessages(allMsgs);
-		this.setMessages(this.sliceForHeight(allMsgs, height));
+		this.setMessages(this.sliceForHeight(allMsgs, height, width));
 	}
 
-	updateMessagesHeight(height: number) {
-		const display = this.sliceForHeight(this.allMessages, height);
+	updateMessagesHeight(height: number, width: number) {
+		const display = this.sliceForHeight(this.allMessages, height, width);
 		this.setMessages(display);
 	}
+
+	handleNewMessage = (message: Message) => {
+		const tuiMessage = new TuiMessage(message);
+		this.addMessage(tuiMessage);
+	};
 }
 
 export function useAppMessages(): MessagesManager {

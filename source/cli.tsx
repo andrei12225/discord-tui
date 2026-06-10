@@ -24,7 +24,7 @@ function AppInner() {
 	const channelsManager = useAppChannels();
 	const messagesManager = useAppMessages();
 	const focusManager = useAppFocus();
-	const {rows} = useWindowSize();
+	const {rows, columns} = useWindowSize();
 
 	useEffect(() => {
 		const handleReady = async () => {
@@ -33,11 +33,11 @@ function AppInner() {
 			setReady(true);
 		};
 
-		client.on(Events.MessageCreate, handleNewMessage);
+		client.on(Events.MessageCreate, messagesManager.handleNewMessage);
 		client.on(Events.ClientReady, handleReady);
 
 		return () => {
-			client.off(Events.MessageCreate, handleNewMessage);
+			client.off(Events.MessageCreate, messagesManager.handleNewMessage);
 		};
 	}, [client]);
 
@@ -46,11 +46,11 @@ function AppInner() {
 	}, [guildsManager.selectedId]);
 
 	useEffect(() => {
-		messagesManager.fetchAndSetAllMessages(channelsManager.getFocusedChannel(), rows);
+		messagesManager.fetchAndSetAllMessages(channelsManager.getFocusedChannel(), rows, columns);
 	}, [channelsManager.selectedId]);
 
 	useEffect(() => {
-		messagesManager.updateMessagesHeight(rows);
+		messagesManager.updateMessagesHeight(rows, columns);
 	}, [rows]);
 
 	useInput(async (_, key) => {
