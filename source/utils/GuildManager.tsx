@@ -1,21 +1,27 @@
 import {useContext, useMemo} from 'react';
 import {GuildContext} from '../cli.js';
+import {TuiGuild} from './domain.js';
 
-export function useAppGuilds() {
+export class GuildsManager {
+	constructor(
+		public readonly list: TuiGuild[],
+		public readonly focusedId: string | null,
+	) {}
+
+	getFocusedGuild(): TuiGuild | null {
+		return this.list.find(g => g.id === this.focusedId) || null;
+	}
+}
+
+export function useAppGuilds(): GuildsManager {
 	const context = useContext(GuildContext);
 	if (!context) {
-		throw new Error('useAppGuilds must be used within an GuildContext provider');
+		throw new Error('useAppGuilds must be used within a GuildContext provider');
 	}
 
-	const {guilds, focusedGuildId, setFocusedGuildId} = context;
+	const {guilds, focusedGuildId} = context;
 
-	const focusedGuild = useMemo(() => {
-		return guilds.find(g => g.id === focusedGuildId) || null;
+	return useMemo(() => {
+		return new GuildsManager(guilds, focusedGuildId);
 	}, [guilds, focusedGuildId]);
-
-	return {
-		guildList: guilds,
-		focusedGuild,
-		setFocus: setFocusedGuildId,
-	};
 }

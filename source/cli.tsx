@@ -8,7 +8,8 @@ import React, {
 } from 'react';
 import {render, Text, useInput} from 'ink';
 import MainPage from './main.js';
-import {Client, Events, GatewayIntentBits, Message, Guild, CategoryChannel, ForumChannel, MediaChannel, NewsChannel, StageChannel, TextChannel, VoiceChannel} from 'discord.js';
+import {Client, Events, GatewayIntentBits, Message} from 'discord.js';
+import {TuiGuild, TuiChannel, TuiMessage} from './utils/domain.js';
 
 process.loadEnvFile('.env');
 
@@ -20,64 +21,70 @@ const client = new Client({
 	],
 });
 
-enum AppElements {
+export enum AppElements {
 	GUILDS,
+	CHANNELS,
+	__LENGTH,
 }
 
-export type TuiChannel = (CategoryChannel | NewsChannel | StageChannel | TextChannel | VoiceChannel | ForumChannel | MediaChannel | undefined)
-
 export interface MessageContext {
-	messages: Message[];
-	setMessages: Dispatch<SetStateAction<Message[]>>;
+	messages: TuiMessage[];
+	setMessages: Dispatch<SetStateAction<TuiMessage[]>>;
 }
 
 export interface ChannelContext {
 	channels: TuiChannel[];
 	setChannels: Dispatch<SetStateAction<TuiChannel[]>>;
 	focusedChannelId: string | null;
-	setFocusedChannelId: Dispatch<SetStateAction<string | null>>;
 }
 
 export interface GuildContext {
-	guilds: Guild[];
-	setGuilds: Dispatch<SetStateAction<Guild[]>>;
+	guilds: TuiGuild[];
+	setGuilds: Dispatch<SetStateAction<TuiGuild[]>>;
 	focusedGuildId: string | null;
-	setFocusedGuildId: Dispatch<SetStateAction<string | null>>;
+}
+
+export interface AppContext {
+	focusedElement: AppElements;
 }
 
 export const MessageContext = createContext<MessageContext | null>(null);
-export const GuildContext = createContext<GuildContext | null>(null);
 export const ChannelContext = createContext<ChannelContext | null>(null);
+export const GuildContext = createContext<GuildContext | null>(null);
+export const AppContext = createContext<AppContext | null>(null);
 
 function App() {
 	const [ready, setReady] = useState(false);
-	const [messages, setMessages] = useState<Message[]>([]);
-	const [guilds, setGuilds] = useState<Guild[]>([]);
+	const [messages, setMessages] = useState<TuiMessage[]>([]);
+	const [guilds, setGuilds] = useState<TuiGuild[]>([]);
 	const [focusedGuildId, setFocusedGuildId] = useState<string | null>(null);
 	const [channels, setChannels] = useState<TuiChannel[]>([]);
 	const [focusedChannelId, setFocusedChannelId] = useState<string | null>(null);
-	const [focusedElement] = useState<AppElements>(AppElements.GUILDS);
+	const [focusedElement, setFocusedElement] = useState<AppElements>(
+		AppElements.GUILDS,
+	);
 
 	const messageContext: MessageContext = {
 		messages,
 		setMessages,
 	};
-	const guildContext: GuildContext = {
-		guilds,
-		setGuilds,
-		focusedGuildId,
-		setFocusedGuildId,
-	};
 	const channelContext: ChannelContext = {
 		channels,
 		setChannels,
 		focusedChannelId,
-		setFocusedChannelId
-	}
+	};
+	const guildContext: GuildContext = {
+		guilds,
+		setGuilds,
+		focusedGuildId,
+	};
+	const appContext: AppContext = {
+		focusedElement
+	};
 
 	useEffect(() => {
 		const handleMessage = (m: Message) => {
-			setMessages(prev => [...prev, m]);
+			setMessages(prev => [...prev, new TuiMessage(m)]);
 		};
 		const handleReady = async () => {
 			const allOAuthGuilds = await client.guilds.fetch();
@@ -85,17 +92,10 @@ function App() {
 				Array.from(allOAuthGuilds.values()).map(g => g.fetch()),
 			);
 
-			setGuilds(fetchedGuilds);
-			if (fetchedGuilds.length > 0) {
-				const focusedGuild = fetchedGuilds[0]!;
-				setFocusedGuildId(focusedGuild.id);
-
-				const guildChannelsCollection = await focusedGuild.channels.fetch();
-				const fetchGuildChannels: TuiChannel[] = await Promise.all(
-					Array.from(guildChannelsCollection.values()).map(c => c?.fetch())
-				);
-
-				setChannels(fetchGuildChannels);
+			const wrappedGuilds = fetchedGuilds.map(g => new TuiGuild(g));
+			setGuilds(wrappedGuilds);
+			if (wrappedGuilds.length > 0) {
+				setFocusedGuildId(wrappedGuilds[0]!.id);
 			}
 			setReady(true);
 		};
@@ -107,6 +107,19 @@ function App() {
 			client.off(Events.MessageCreate, handleMessage);
 		};
 	}, [client]);
+
+	useEffect(() => {
+		const updateChannels = async () => {
+			if (!focusedGuildId) return;
+			const focusedGuild = guilds.find(g => g.id === focusedGuildId);
+			if (focusedGuild) {
+				const fetchedChannels = await focusedGuild.fetchChannels();
+				setChannels(fetchedChannels);
+				setFocusedChannelId(fetchedChannels[0]!.id);
+			}
+		};
+		updateChannels();
+	}, [focusedGuildId, guilds]);
 
 	useInput((_, key) => {
 		if (key.downArrow || key.upArrow) {
@@ -122,23 +135,48 @@ function App() {
 					setFocusedGuildId(guilds[nextIndex]!.id);
 				}
 			}
+			if (focusedElement === AppElements.CHANNELS && channels.length > 0) {
+				const currentIndex = channels.findIndex(c => c.id === focusedChannelId);
+				if (currentIndex !== -1) {
+					let nextIndex = currentIndex;
+					if (key.downArrow) {
+						nextIndex = (currentIndex + 1) % channels.length;
+					} else if (key.upArrow) {
+						nextIndex = (currentIndex - 1 + channels.length) % channels.length;
+					}
+					setFocusedChannelId(channels[nextIndex]!.id);
+				}
+			}
+		}
+		if (key.leftArrow || key.rightArrow) {
+			const currentFocus = focusedElement;
+			let nextIndex = currentFocus;
+			if (key.leftArrow) {
+				nextIndex =
+					(currentFocus - 1 + AppElements.__LENGTH) % AppElements.__LENGTH;
+			} else if (key.rightArrow) {
+				nextIndex = (currentFocus + 1) % AppElements.__LENGTH;
+			}
+			setFocusedElement(nextIndex);
 		}
 	});
 
 	return (
-		<GuildContext.Provider value={guildContext}>
-			<ChannelContext value={channelContext}>
-				<MessageContext value={messageContext}>
-					{ready ? (
-						<MainPage />
-					) : (
-						<Text color={'blue'} italic>
-							Bot loading...
-						</Text>
-					)}
-				</MessageContext>
-			</ChannelContext>
-		</GuildContext.Provider>
+		<AppContext value={appContext}>
+			<GuildContext value={guildContext}>
+				<ChannelContext value={channelContext}>
+					<MessageContext value={messageContext}>
+						{ready ? (
+							<MainPage />
+						) : (
+							<Text color={'blue'} italic>
+								Bot loading...
+							</Text>
+						)}
+					</MessageContext>
+				</ChannelContext>
+			</GuildContext>
+		</AppContext>
 	);
 }
 
