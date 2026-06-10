@@ -18,8 +18,14 @@ export default function LeftbarGuilds() {
 				<Text key={guild.id}>
 					#{' '}
 					<Text
-						backgroundColor={focusedGuild.id === guild.id ? process.env['focused-bg'] : ''}
-						color={focusedGuild.id === guild.id ? process.env['focused-fg'] : process.env['main-fg']}
+						backgroundColor={
+							focusedGuild.id === guild.id ? process.env['focused-bg'] : ''
+						}
+						color={
+							focusedGuild.id === guild.id
+								? process.env['focused-fg']
+								: process.env['main-fg']
+						}
 					>
 						{guild.name}
 					</Text>
