@@ -19,12 +19,17 @@ export default function MainPage() {
 				<LeftbarChannelPicker />
 			)}
 			<Box borderStyle={'classic'} width={'50%'} paddingX={2} flexDirection="column" overflowY="hidden">
-				{messages.map(m => (
-					<Text key={m.id} wrap="wrap">
-						{`${m.author.tag}: ${m.content}`}
-					</Text>
-				))}
-			</Box>
+				<Box flexGrow={1} overflowY="hidden" flexDirection="column">
+					{messages.map(m => (
+						<Text key={m.id} wrap="wrap">
+							{`${m.author.tag}: ${m.content}`}
+						</Text>
+					))}
+				</Box>
+				<Box alignSelf='flex-end' borderStyle={"single"} width={"100%"}>
+					<Text>Enter message...</Text>
+				</Box>
+			</Box>	
 			<Box borderStyle={'classic'} width={'20%'}>
 				<Text>
 					users

@@ -32,7 +32,7 @@ export function MessageProvider({children}: {children: ReactNode}) {
 }
 
 export class MessagesManager {
-	private readonly messages_height_ratio = 40 / 45;
+	private readonly messages_height_ratio = 38 / 45;
 
 	constructor(
 		public readonly list: TuiMessage[],
