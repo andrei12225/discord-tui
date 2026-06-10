@@ -56,20 +56,23 @@ export class MessagesManager {
 	}
 
 	private sliceForHeight(source: TuiMessage[], height: number, width: number): TuiMessage[] {
-		let maxMessages = Math.floor(height * this.messages_height_ratio);
-		if (source.length <= maxMessages) return source;
-		let slicedMessages = source.slice(source.length - maxMessages);
+		const availableLines = Math.floor(height * this.messages_height_ratio);
+		const usableWidth = Math.max(width * 0.5, 10);
 
+		// Walk backwards through messages, accumulating lines until we fill the view
 		let totalLines = 0;
-		for (const message of slicedMessages) {
-			const linesOccupied = Math.floor(message.content.length / 0.5 * width);
+		let startIndex = source.length;
+
+		for (let i = source.length - 1; i >= 0; i--) {
+			const msg = source[i]!;
+			const rendered = `${msg.author.tag}: ${msg.content}`;
+			const linesOccupied = Math.max(1, Math.ceil(rendered.length / usableWidth));
+			if (totalLines + linesOccupied > availableLines) break;
 			totalLines += linesOccupied;
+			startIndex = i;
 		}
 
-		maxMessages = Math.floor(totalLines * this.messages_height_ratio);
-		slicedMessages = source.slice(source.length - maxMessages);
-
-		return slicedMessages;
+		return source.slice(startIndex);
 	}
 
 	async fetchAndSetAllMessages(channel: TuiChannel | null, height: number, width: number) {

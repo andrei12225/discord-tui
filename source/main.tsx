@@ -18,10 +18,12 @@ export default function MainPage() {
 			) : (
 				<LeftbarChannelPicker />
 			)}
-			<Box borderStyle={'classic'} width={'50%'} paddingX={2}>
-				<Text>
-					{messages.map(m => `${m.author.tag}: ${m.content}`).join('\n')}
-				</Text>
+			<Box borderStyle={'classic'} width={'50%'} paddingX={2} flexDirection="column" overflowY="hidden">
+				{messages.map(m => (
+					<Text key={m.id} wrap="wrap">
+						{`${m.author.tag}: ${m.content}`}
+					</Text>
+				))}
 			</Box>
 			<Box borderStyle={'classic'} width={'20%'}>
 				<Text>

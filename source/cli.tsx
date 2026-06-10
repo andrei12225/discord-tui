@@ -51,7 +51,7 @@ function AppInner() {
 
 	useEffect(() => {
 		messagesManager.updateMessagesHeight(rows, columns);
-	}, [rows]);
+	}, [rows, messagesManager.list.length]);
 
 	useInput(async (_, key) => {
 		if (key.downArrow || key.upArrow) {
