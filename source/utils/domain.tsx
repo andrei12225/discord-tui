@@ -20,6 +20,10 @@ export class TuiChannel {
 	get messages() {
 		return this.raw.messages;
 	}
+
+	async sendMessage(content: string) {
+		await this.raw.send({content});
+	}
 }
 
 export class TuiGuild {
