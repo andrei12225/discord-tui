@@ -1,14 +1,14 @@
 import {Box, Newline, Text} from 'ink';
 import React from 'react';
 import {useAppChannels} from '../../utils/ChannelManager.js';
-import Option from './option.js';
+import Option from '../../utils/option.js';
 
 export default function LeftbarChannelPicker() {
 	const channels = useAppChannels();
 
 	const onChannelSelect = (channelId: string) => {
 		channels.selectChannel(channelId);
-	}
+	};
 
 	return (
 		<Box
@@ -24,9 +24,11 @@ export default function LeftbarChannelPicker() {
 			</Box>
 			<Newline></Newline>
 			{channels.list.map(channel => (
-				<Option onSelect={() => onChannelSelect(channel.id)} 
-						key={channel.id} 
-						content={'# ' + channel.name}/>
+				<Option
+					onSelect={() => onChannelSelect(channel.id)}
+					key={channel.id}
+					content={'# ' + channel.name}
+				/>
 			))}
 		</Box>
 	);

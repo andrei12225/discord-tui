@@ -1,14 +1,14 @@
 import {Box, Newline, Text} from 'ink';
 import React from 'react';
 import {useAppGuilds} from '../../utils/GuildManager.js';
-import Option from './option.js';
+import Option from '../../utils/option.js';
 
 export default function LeftbarGuilds() {
 	const guilds = useAppGuilds();
-	
+
 	const onGuildSelect = (guildId: string) => {
 		guilds.selectGuild(guildId);
-	}
+	};
 
 	return (
 		<Box

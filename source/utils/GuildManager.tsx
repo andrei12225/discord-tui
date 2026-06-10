@@ -44,10 +44,6 @@ export class GuildsManager {
 		private readonly setSelectedId: Dispatch<SetStateAction<string | null>>,
 	) {}
 
-	// getFocusedGuild(): TuiGuild | null {
-	// 	return this.list.find(g => g.id === this.focusedId) || null;
-	// }
-
 	getSelectedGuild(): TuiGuild | null {
 		return this.list.find(g => g.id === this.selectedId) || null;
 	}
@@ -55,26 +51,6 @@ export class GuildsManager {
 	setList(guilds: TuiGuild[]) {
 		this.setGuilds(guilds);
 	}
-
-	// setFocusedGuildId(id: string | null) {
-	// 	this.setFocusedId(id);
-	// }
-
-	// focusNext() {
-	// 	if (this.list.length === 0) return;
-	// 	const currentIndex = this.list.findIndex(g => g.id === this.focusedId);
-	// 	if (currentIndex === -1) return;
-	// 	const nextIndex = (currentIndex + 1) % this.list.length;
-	// 	this.setFocusedId(this.list[nextIndex]!.id);
-	// }
-
-	// focusPrevious() {
-	// 	if (this.list.length === 0) return;
-	// 	const currentIndex = this.list.findIndex(g => g.id === this.focusedId);
-	// 	if (currentIndex === -1) return;
-	// 	const nextIndex = (currentIndex - 1 + this.list.length) % this.list.length;
-	// 	this.setFocusedId(this.list[nextIndex]!.id);
-	// }
 
 	selectGuild(guildId: string) {
 		this.setSelectedId(guildId);
@@ -92,9 +68,10 @@ export class GuildsManager {
 
 		const wrappedGuilds = fetchedGuilds.map(g => new TuiGuild(g));
 		this.setList(wrappedGuilds);
-		if (wrappedGuilds.length > 0) {
-			// this.setFocusedGuildId(wrappedGuilds[0]!.id);
-		}
+	}
+
+	hasSelectedGuild() {
+		return this.selectedId !== null;
 	}
 }
 
@@ -104,12 +81,7 @@ export function useAppGuilds(): GuildsManager {
 		throw new Error('useAppGuilds must be used within a GuildProvider');
 	}
 
-	const {
-		guilds,
-		setGuilds,
-		selectedGuildId,
-		setSelectedGuildId,
-	} = context;
+	const {guilds, setGuilds, selectedGuildId, setSelectedGuildId} = context;
 
 	return useMemo(() => {
 		return new GuildsManager(

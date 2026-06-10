@@ -79,12 +79,8 @@ export function useAppChannels(): ChannelsManager {
 		throw new Error('useAppChannels must be used within a ChannelProvider');
 	}
 
-	const {
-		channels,
-		setChannels,
-		selectedChannelId,
-		setSelectedChannelId,
-	} = context;
+	const {channels, setChannels, selectedChannelId, setSelectedChannelId} =
+		context;
 
 	return useMemo(() => {
 		return new ChannelsManager(
