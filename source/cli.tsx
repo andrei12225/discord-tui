@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {render, Text, useInput, useWindowSize} from 'ink';
-import {Client, Events, GatewayIntentBits} from 'discord.js';
+import {Client, Events, GatewayIntentBits, Presence} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
 import {MessageProvider, useAppMessages} from './utils/MessageManager.js';
 import MainPage from './main.js';
+import { MemberProvider, useAppMembers } from './utils/MemberManager.js';
 
 process.loadEnvFile('.env');
 
@@ -14,6 +15,8 @@ const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildPresences
 	],
 });
 
@@ -22,7 +25,13 @@ function AppInner() {
 	const guildsManager = useAppGuilds();
 	const channelsManager = useAppChannels();
 	const messagesManager = useAppMessages();
+	const membersManager = useAppMembers();
 	const {rows, columns} = useWindowSize();
+
+	const channelsManagerRef = useRef(channelsManager);
+	channelsManagerRef.current = channelsManager;
+	const membersManagerRef = useRef(membersManager);
+	membersManagerRef.current = membersManager;
 
 	useEffect(() => {
 		const handleReady = async () => {
@@ -30,12 +39,22 @@ function AppInner() {
 
 			setReady(true);
 		};
+		const handlePresenceUpdate = async (_: Presence | null, newPresence: Presence) => {
+			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
+			if (!selectedChannel) return;
+			if (!newPresence.member) return;
+			// If the member that updated presence isn't in the selected channel, do nothing
+			if (!selectedChannel.members.has(newPresence.member.id)) return;
+			await membersManagerRef.current.updatePresence(newPresence.member.id);
+		};
 
 		client.on(Events.MessageCreate, messagesManager.handleNewMessage);
+		client.on(Events.PresenceUpdate, handlePresenceUpdate);
 		client.on(Events.ClientReady, handleReady);
 
 		return () => {
 			client.off(Events.MessageCreate, messagesManager.handleNewMessage);
+			client.off(Events.PresenceUpdate, handlePresenceUpdate);
 		};
 	}, [client]);
 
@@ -44,11 +63,13 @@ function AppInner() {
 	}, [guildsManager.selectedId]);
 
 	useEffect(() => {
+		const selectedChannel = channelsManager.getSelectedChannel();
 		messagesManager.fetchAndSetAllMessages(
-			channelsManager.getSelectedChannel(),
+			selectedChannel,
 			rows,
 			columns,
 		);
+		membersManager.fetchAndSetAllMembers(selectedChannel);
 	}, [channelsManager.selectedId]);
 
 	useEffect(() => {
@@ -78,9 +99,11 @@ function App() {
 	return (
 		<GuildProvider>
 			<ChannelProvider>
-				<MessageProvider>
-					<AppInner />
-				</MessageProvider>
+				<MemberProvider>
+					<MessageProvider>
+						<AppInner />
+					</MessageProvider>
+				</MemberProvider>
 			</ChannelProvider>
 		</GuildProvider>
 	);

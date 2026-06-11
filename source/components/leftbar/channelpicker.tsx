@@ -5,7 +5,7 @@ import Option from '../../utils/option.js';
 
 export default function LeftbarChannelPicker() {
 	const channels = useAppChannels();
-
+	
 	const onChannelSelect = (channelId: string) => {
 		channels.selectChannel(channelId);
 	};
