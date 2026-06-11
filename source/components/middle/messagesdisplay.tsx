@@ -2,10 +2,12 @@ import {Box, Text} from 'ink';
 import React from 'react';
 import TextInput from '../../utils/textinput.js';
 import {useAppMessages} from '../../utils/MessageManager.js';
+import { useAppChannels } from '../../utils/ChannelManager.js';
 
 export default function MessagesDisplay() {
 	const messagesManager = useAppMessages();
 	const messages = messagesManager.list;
+	const channelsManager = useAppChannels();
 
 	return (
 		<Box
@@ -22,7 +24,9 @@ export default function MessagesDisplay() {
 					</Text>
 				))}
 			</Box>
-			<TextInput placeholder='Enter message...' />
+			{channelsManager.hasSelectedChannel() && 
+				<TextInput placeholder='Enter message...' />
+			}
 		</Box>
 	);
 }

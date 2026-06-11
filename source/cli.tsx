@@ -69,19 +69,25 @@ function AppInner() {
 			rows,
 			columns,
 		);
-		membersManager.fetchAndSetAllMembers(selectedChannel);
+		membersManager.fetchAndSetAllMembers(selectedChannel, rows);
 	}, [channelsManager.selectedId]);
 
 	useEffect(() => {
 		messagesManager.updateMessagesHeight(rows, columns);
 	}, [rows, messagesManager.list.length]);
 
+	useEffect(() => {
+		membersManager.updateMembersHeight(rows);
+	}, [rows, membersManager.list.length]);
+
 	useInput(async (_, key) => {
 		if (key.escape) {
 			if (channelsManager.hasSelectedChannel()) {
 				guildsManager.deselectGuild();
+				channelsManager.deselectChannel();
 				channelsManager.setList([]);
 				messagesManager.clearAll();
+				membersManager.clearAll();
 			}
 		}
 	});

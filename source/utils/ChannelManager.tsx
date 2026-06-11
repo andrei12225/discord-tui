@@ -53,15 +53,20 @@ export class ChannelsManager {
 		this.setSelectedId(id);
 	}
 
+	
 	async fetchAndSetAllChannels(selectedGuild: TuiGuild | null) {
 		if (!selectedGuild) return;
-
+		
 		const fetchedChannels = await selectedGuild.fetchChannels();
 		this.setList(fetchedChannels);
 	}
-
+	
 	selectChannel(channelId: string) {
 		this.setSelectedChannelId(channelId);
+	}
+	
+	deselectChannel() {
+		this.setSelectedChannelId(null);
 	}
 
 	hasSelectedChannel() {
