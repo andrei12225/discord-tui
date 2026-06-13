@@ -1,35 +1,31 @@
-import {Box, Newline, Text} from 'ink';
+import {Box, Text} from 'ink';
 import React from 'react';
 import {useAppGuilds} from '../../utils/GuildManager.js';
-import Option from '../../utils/option.js';
+import TreeBranch from './treebranch.js';
 
 export default function LeftbarGuilds() {
 	const guilds = useAppGuilds();
 
-	const onGuildSelect = (guildId: string) => {
-		guilds.selectGuild(guildId);
-	};
-
 	return (
-		<Box
-			width={'20%'}
-			height={'100%'}
-			flexDirection="column"
-			borderStyle={'classic'}
-			alignItems="center"
-		>
-			<Box width="100%" flexDirection="column" alignItems="center">
-				<Text color="blue">Choose a guild by</Text>
-				<Text color="blue">pressing ENTER</Text>
+		<Box width={'20%'}
+			 height={'100%'}
+			 flexDirection='column'
+			 borderStyle={'classic'}
+			 justifyContent='space-between'>
+			<Box
+				width={'100%'}
+				flexDirection='column'
+				alignItems='flex-start'
+				paddingX={1.5}
+				gap={1}
+			>
+				{guilds.list.map(guild => (
+					<React.Suspense key={guild.id} fallback={<Text dimColor>Loading...</Text>}>
+						<TreeBranch guild={guild}/>
+					</React.Suspense>
+				))}
 			</Box>
-			<Newline></Newline>
-			{guilds.list.map(guild => (
-				<Option
-					onSelect={() => onGuildSelect(guild.id)}
-					key={guild.id}
-					content={'# ' + guild.name}
-				/>
-			))}
+			<Box alignSelf='center'><Text>← Main Menu</Text></Box>
 		</Box>
 	);
 }

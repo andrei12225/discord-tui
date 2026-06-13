@@ -58,9 +58,7 @@ function AppInner() {
 		};
 	}, [client]);
 
-	useEffect(() => {
-		channelsManager.fetchAndSetAllChannels(guildsManager.getSelectedGuild());
-	}, [guildsManager.selectedId]);
+
 
 	useEffect(() => {
 		const selectedChannel = channelsManager.getSelectedChannel();

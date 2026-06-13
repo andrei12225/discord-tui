@@ -31,6 +31,8 @@ export class TuiChannel {
 }
 
 export class TuiGuild {
+	private channelsResource: { read(): TuiChannel[] } | null = null;
+
 	constructor(public readonly raw: Guild) { }
 
 	get id() {
@@ -49,6 +51,27 @@ export class TuiGuild {
 			.filter((c): c is RawChannel => c !== null && c !== undefined)
 			.map(c => new TuiChannel(c))
 			.filter(c => c.istext);
+	}
+
+	/** Suspense-compatible: call during render. Throws a Promise if not yet loaded. */
+	readChannels(): TuiChannel[] {
+		if (!this.channelsResource) {
+			let status: 'pending' | 'success' | 'error' = 'pending';
+			let result: TuiChannel[];
+			let error: unknown;
+			const promise = this.fetchChannels().then(
+				r => { status = 'success'; result = r; },
+				e => { status = 'error'; error = e; },
+			);
+			this.channelsResource = {
+				read() {
+					if (status === 'pending') throw promise;
+					if (status === 'error') throw error;
+					return result!;
+				},
+			};
+		}
+		return this.channelsResource.read();
 	}
 }
 
