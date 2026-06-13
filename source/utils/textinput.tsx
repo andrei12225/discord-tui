@@ -4,10 +4,11 @@ import { useAppChannels } from './ChannelManager.js';
 
 type props = {
     placeholder?: string;
+    focusId?: string;
 }
 
-export default function TextInput({placeholder}: props) {
-	const focus = useFocus();
+export default function TextInput({placeholder, focusId}: props) {
+	const focus = useFocus({id: focusId});
     const [value, setValue] = useState<string>('');
     const channelManager = useAppChannels();
 

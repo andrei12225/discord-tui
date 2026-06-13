@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import React, {useEffect, useRef, useState} from 'react';
-import {render, Text, useInput, useWindowSize} from 'ink';
+import {render, Text, useFocusManager, useInput, useWindowSize} from 'ink';
 import {Client, Events, GatewayIntentBits, Presence} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
@@ -27,6 +27,7 @@ function AppInner() {
 	const messagesManager = useAppMessages();
 	const membersManager = useAppMembers();
 	const {rows, columns} = useWindowSize();
+	const focusManager = useFocusManager();
 
 	const channelsManagerRef = useRef(channelsManager);
 	channelsManagerRef.current = channelsManager;
@@ -58,8 +59,6 @@ function AppInner() {
 		};
 	}, [client]);
 
-
-
 	useEffect(() => {
 		const selectedChannel = channelsManager.getSelectedChannel();
 		messagesManager.fetchAndSetAllMessages(
@@ -78,7 +77,7 @@ function AppInner() {
 		membersManager.updateMembersHeight(rows);
 	}, [rows, membersManager.list.length]);
 
-	useInput(async (_, key) => {
+	useInput(async (event, key) => {
 		if (key.escape) {
 			if (channelsManager.hasSelectedChannel()) {
 				guildsManager.deselectGuild();
@@ -87,6 +86,9 @@ function AppInner() {
 				messagesManager.clearAll();
 				membersManager.clearAll();
 			}
+		} else if (event == '/') {
+			if (channelsManager.hasSelectedChannel())
+				focusManager.focus(process.env['chatbox-id']!);
 		}
 	});
 

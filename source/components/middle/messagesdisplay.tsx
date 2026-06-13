@@ -9,7 +9,7 @@ const shortcuts = [
 	{ key: 'Tab',       description: 'Switch focus' },
 	{ key: 'Shift+Tab', description: 'Switch focus backwards' },
 	{ key: 'Esc',       description: 'Back to this menu' },
-	{ key: 'Ctrl',      description: 'Focus chatbox' },
+	{ key: '/',      description: 'Focus chatbox' },
 ];
 
 function KeyboardShortcuts() {
@@ -56,7 +56,7 @@ export default function MessagesDisplay() {
 						))}
 					</Box>
 					{channelsManager.hasSelectedChannel() && 
-						<TextInput placeholder='Enter message...' />
+						<TextInput focusId={process.env['chatbox-id']} placeholder='Enter message...' />
 					}
 				</>
 			) : (

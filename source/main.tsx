@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, useWindowSize} from 'ink';
-import LeftbarGuilds from './components/leftbar/guildpicker.js';
+import LeftbarGuilds from './components/leftbar/guildtree.js';
 import MessagesDisplay from './components/middle/messagesdisplay.js';
 import MembersDisplay from './components/rightbar/membersdisplay.js';
 
