@@ -53,7 +53,6 @@ export class TuiGuild {
 			.filter(c => c.istext);
 	}
 
-	/** Suspense-compatible: call during render. Throws a Promise if not yet loaded. */
 	readChannels(): TuiChannel[] {
 		if (!this.channelsResource) {
 			let status: 'pending' | 'success' | 'error' = 'pending';

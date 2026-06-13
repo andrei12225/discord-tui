@@ -25,7 +25,7 @@ export default function LeftbarGuilds() {
 					</React.Suspense>
 				))}
 			</Box>
-			<Box alignSelf='center'><Text>← Main Menu</Text></Box>
+			<Box alignSelf='center'><Text bold>← Main Menu (esc)</Text></Box>
 		</Box>
 	);
 }
