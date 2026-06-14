@@ -26,7 +26,7 @@ function KeyboardShortcuts() {
 					<Text dimColor>{s.description}</Text>
 				</Box>
 			))}
-			<Text> </Text>
+			<Newline></Newline>
 			<Text dimColor italic>Select a channel first</Text>
 		</Box>
 	);
