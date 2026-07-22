@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import React, {useEffect, useRef, useState} from 'react';
 import {render, Text, useFocusManager, useInput, useWindowSize} from 'ink';
-import {Client, Events, GatewayIntentBits, Presence} from 'discord.js';
+import {Client, Events, GatewayIntentBits, GuildMember, PartialGuildMember, Presence} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
 import {MessageProvider, useAppMessages} from './utils/MessageManager.js';
@@ -48,14 +48,33 @@ function AppInner() {
 			if (!selectedChannel.members.has(newPresence.member.id)) return;
 			await membersManagerRef.current.updatePresence(newPresence.member.id);
 		};
+		const handleNewMember = async (member: GuildMember) => {
+			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
+			if (!selectedChannel) return;
+			// If the member that joined isn't in the selected channel, do nothing
+			if (!selectedChannel.members.has(member.id)) return;
+			membersManagerRef.current.handleNewMember(member);
+		}
+		const handleMemberRemove = async (member: GuildMember | PartialGuildMember) => {
+			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
+			if (!selectedChannel) return;
+			// If the member that left isn't in the selected channel, do nothing
+			if (!selectedChannel.members.has(member.id)) return;
+			membersManagerRef.current.handleMemberRemove(member);
+		}
 
 		client.on(Events.MessageCreate, messagesManager.handleNewMessage);
+		client.on(Events.GuildMemberAdd, handleNewMember);
+		client.on(Events.GuildMemberRemove, handleMemberRemove);
 		client.on(Events.PresenceUpdate, handlePresenceUpdate);
 		client.on(Events.ClientReady, handleReady);
 
 		return () => {
 			client.off(Events.MessageCreate, messagesManager.handleNewMessage);
 			client.off(Events.PresenceUpdate, handlePresenceUpdate);
+			client.off(Events.GuildMemberAdd, handleNewMember);
+			client.off(Events.GuildMemberRemove, handleMemberRemove);
+			client.off(Events.ClientReady, handleReady);
 		};
 	}, [client]);
 

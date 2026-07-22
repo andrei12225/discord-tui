@@ -10,7 +10,7 @@ import React, {
     RefObject,
 } from 'react';
 import { TuiMember, TuiChannel } from './domain.js';
-import { Collection, GuildMember } from 'discord.js';
+import { Collection, GuildMember, PartialGuildMember } from 'discord.js';
 
 export interface MemberContextValue {
     members: TuiMember[];
@@ -61,6 +61,16 @@ export class MembersManager {
         this.setMembers(members);
     }
 
+    addMember(member: TuiMember) {
+        this.setAllMembers(prev => [...prev, member]);
+        this.setMembers(prev => [...prev, member]);
+    }
+
+    removeMember(member: TuiMember) {
+        this.setAllMembers(prev => prev.filter(m => m.id !== member.id));
+        this.setMembers(prev => prev.filter(m => m.id !== member.id));
+    }
+
     clearAll() {
         this.setMembers([]);
         this.setAllMembers([]);
@@ -96,6 +106,16 @@ export class MembersManager {
         this.setAllMembers(updatedAll);
         this.setMembers(updatedAll);
     }
+
+    handleNewMember = (member: GuildMember) => {
+        const tuiMember = new TuiMember(member);
+        this.addMember(tuiMember);
+    }
+
+    handleMemberRemove = (member: GuildMember | PartialGuildMember) => {
+        const tuiMember = new TuiMember(member as GuildMember);
+        this.removeMember(tuiMember);
+    }  
 }
 
 export function useAppMembers(): MembersManager {
