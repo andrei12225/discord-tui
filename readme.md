@@ -32,13 +32,33 @@ npm install
 
 ## Configuration
 
-Create a `.env` file in the project root and set your bot token:
+Create a `.env` file in the project root and set your bot values based on `.env.example`.
 
 ```env
 BOT_TOKEN=your-discord-bot-token
+chatbox-id=chatbox
+focused-bg=blue
+focused-fg=white
+main-fg=gray
+color-offline=gray
+color-online=green
+color-idle=yellow
+color-dnd=red
 ```
 
 The app loads environment variables from `.env` using `process.loadEnvFile('.env')`.
+
+### Environment variables
+
+- `BOT_TOKEN` - your Discord bot token used to authenticate the client
+- `chatbox-id` - Ink focus ID for the chat input field
+- `focused-bg` - background color for focused menu options
+- `focused-fg` - foreground color for focused menu options
+- `main-fg` - default foreground color for menu text and labels
+- `color-offline` - color used when a member is offline
+- `color-online` - color used when a member is online
+- `color-idle` - color used when a member is idle
+- `color-dnd` - color used when a member has Do Not Disturb status
 
 ## Development
 
