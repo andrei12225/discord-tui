@@ -9,8 +9,9 @@ A terminal-based Discord client built with React, Ink, and Discord.js.
 - Terminal UI powered by Ink and React
 - Discord gateway integration through `discord.js`
 - Guild and channel navigation
-- Message rendering for active channels
-- Member list and presence updates
+- Message rendering for active channels with live `messageCreate` updates
+- Member list updates for `guildMemberAdd` and `guildMemberRemove`
+- Presence updates for active members
 - Responsive layout for terminal window size changes
 
 ## Requirements
