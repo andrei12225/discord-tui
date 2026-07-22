@@ -8,7 +8,7 @@ import React, {
 	ReactNode,
 } from 'react';
 import {TuiChannel, TuiMessage} from './domain.js';
-import {Message} from 'discord.js';
+import {Message, PartialMessage} from 'discord.js';
 
 export interface MessageContextValue {
 	messages: TuiMessage[];
@@ -44,6 +44,11 @@ export class MessagesManager {
 	addMessage(message: TuiMessage) {
 		this.setAllMessages(prev => [...prev, message]);
 		this.setMessages(prev => [...prev, message]);
+	}
+
+	removeMessage(message: TuiMessage) {
+		this.setAllMessages(prev => prev.filter(m => m.id !== message.id));
+		this.setMessages(prev => prev.filter(m => m.id !== message.id));
 	}
 
 	setList(messages: TuiMessage[]) {
@@ -105,6 +110,11 @@ export class MessagesManager {
 		const tuiMessage = new TuiMessage(message);
 		this.addMessage(tuiMessage);
 	};
+
+	handleMessageDelete = (message: Message | PartialMessage) => {
+		const tuiMessage = new TuiMessage(message as Message);
+		this.removeMessage(tuiMessage);
+	}
 }
 
 export function useAppMessages(): MessagesManager {

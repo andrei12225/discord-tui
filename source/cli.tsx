@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import React, {useEffect, useRef, useState} from 'react';
 import {render, Text, useFocusManager, useInput, useWindowSize} from 'ink';
-import {Client, Events, GatewayIntentBits, GuildMember, PartialGuildMember, Presence} from 'discord.js';
+import {Client, Events, GatewayIntentBits, GuildMember, Message, PartialGuildMember, PartialMessage, Presence} from 'discord.js';
 import {GuildProvider, useAppGuilds} from './utils/GuildManager.js';
 import {ChannelProvider, useAppChannels} from './utils/ChannelManager.js';
 import {MessageProvider, useAppMessages} from './utils/MessageManager.js';
@@ -54,16 +54,33 @@ function AppInner() {
 			// If the member that joined isn't in the selected channel, do nothing
 			if (!selectedChannel.members.has(member.id)) return;
 			membersManagerRef.current.handleNewMember(member);
-		}
+		};
 		const handleMemberRemove = async (member: GuildMember | PartialGuildMember) => {
 			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
 			if (!selectedChannel) return;
 			// If the member that left isn't in the selected channel, do nothing
 			if (!selectedChannel.members.has(member.id)) return;
 			membersManagerRef.current.handleMemberRemove(member);
-		}
+		};
+		const handleMessageCreate = async (message: Message) => {
+			if (message.channel.isDMBased()) return;
+			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
+			if (!selectedChannel) return;
+			// If the message that was created isn't in the selected channel, do nothing
+			if (message.channelId !== selectedChannel.id) return;
+			messagesManager.handleNewMessage(message);
+		};
+		const handleMessageDelete = async (message: Message | PartialMessage) => {
+			if (message.channel.isDMBased()) return;
+			const selectedChannel = channelsManagerRef.current.getSelectedChannel();
+			if (!selectedChannel) return;
+			// If the message that was deleted isn't in the selected channel, do nothing
+			if (message.channelId !== selectedChannel.id) return;
+			messagesManager.handleMessageDelete(message);
+		};
 
-		client.on(Events.MessageCreate, messagesManager.handleNewMessage);
+		client.on(Events.MessageCreate, handleMessageCreate);
+		client.on(Events.MessageDelete, handleMessageDelete);
 		client.on(Events.GuildMemberAdd, handleNewMember);
 		client.on(Events.GuildMemberRemove, handleMemberRemove);
 		client.on(Events.PresenceUpdate, handlePresenceUpdate);
