@@ -1,15 +1,15 @@
-import {Box, Newline, Text} from 'ink';
+import { Box, Newline, Text } from 'ink';
 import React from 'react';
 import TextInput from '../../utils/textinput.js';
-import {useAppMessages} from '../../utils/MessageManager.js';
+import { useAppMessages } from '../../utils/MessageManager.js';
 import { useAppChannels } from '../../utils/ChannelManager.js';
 import { useAppGuilds } from '../../utils/GuildManager.js';
 
 const shortcuts = [
-	{ key: 'Tab',       description: 'Switch focus' },
+	{ key: 'Tab', description: 'Switch focus' },
 	{ key: 'Shift+Tab', description: 'Switch focus backwards' },
-	{ key: 'Esc',       description: 'Back to this menu' },
-	{ key: '/',      description: 'Focus chatbox' },
+	{ key: 'Esc', description: 'Back to this menu' },
+	{ key: '/', description: 'Focus chatbox' },
 ];
 
 function KeyboardShortcuts() {
@@ -55,7 +55,7 @@ export default function MessagesDisplay() {
 							</Text>
 						))}
 					</Box>
-					{channelsManager.hasSelectedChannel() && 
+					{channelsManager.hasSelectedChannel() &&
 						<TextInput focusId={process.env['chatbox-id']} placeholder='Enter message...' />
 					}
 				</>
